@@ -3,10 +3,9 @@
 
 #include "GameTest.h"
 
-using namespace std;
-
 int main()
 {
-	cout << "Hello CMake." << endl;
+	std::cout << "Version " << GameTest_VERSION_MAJOR << "." << GameTest_VERSION_MINOR << "\n";
+	std::cout << "Hello CMake." << std::endl;
 	return 0;
 }

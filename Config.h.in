@@ -1,0 +1,3 @@
+// the configured options and settings for GameTest
+#define GameTest_VERSION_MAJOR @GameTest_VERSION_MAJOR@
+#define GameTest_VERSION_MINOR @GameTest_VERSION_MINOR@
