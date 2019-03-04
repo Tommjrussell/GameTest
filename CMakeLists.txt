@@ -21,7 +21,9 @@ include_directories("${PROJECT_BINARY_DIR}" "${GLFW_SOURCE_DIR}/deps")
 
 # Add source to this project's executable.
 add_executable (GameTest "GameTest.cpp" "GameTest.h")
+target_link_libraries(GameTest PUBLIC glfw glad OpenGL::GL)
 
-target_link_libraries(GameTest PUBLIC glfw glad glm OpenGL::GL)
+add_executable(SokolTest "src/sokol.cpp" "src/sokolTest.cpp")
+target_link_libraries(SokolTest PUBLIC glfw glad sokol OpenGL::GL)
 
 # TODO: Add tests and install targets if needed.

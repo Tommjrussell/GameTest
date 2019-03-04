@@ -9,3 +9,6 @@ add_subdirectory(glad)
 
 add_library(glm INTERFACE)
 target_include_directories(glm INTERFACE ${CMAKE_CURRENT_LIST_DIR}/glm)
+
+add_library(sokol INTERFACE)
+target_include_directories(sokol INTERFACE ${CMAKE_CURRENT_LIST_DIR}/sokol)
