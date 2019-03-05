@@ -24,6 +24,10 @@ add_executable (GameTest "GameTest.cpp" "GameTest.h")
 target_link_libraries(GameTest PUBLIC glfw glad OpenGL::GL)
 
 add_executable(SokolTest "src/sokol.cpp" "src/sokolTest.cpp")
-target_link_libraries(SokolTest PUBLIC glfw glad sokol OpenGL::GL)
+target_link_libraries(SokolTest PUBLIC sokol OpenGL::GL)
+
+add_executable(AppTest "src/AppTest.cpp" "src/App.h" "src/AppBackend.h" "src/glfwAppBackend.h" "src/glfwAppBackend.cpp")
+target_link_libraries(AppTest PUBLIC glfw glad sokol OpenGL::GL)
+
 
 # TODO: Add tests and install targets if needed.

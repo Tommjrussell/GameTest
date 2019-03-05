@@ -1,14 +1,6 @@
 #include <memory>
 
-class AppBackend
-{
-
-public:
-	virtual ~AppBackend() {}
-
-	virtual void Init() = 0;
-	virtual void Shutdown() = 0;
-};
+#include "AppbackEnd.h
 
 class App
 {
