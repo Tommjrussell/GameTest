@@ -7,10 +7,10 @@ struct GLFWwindow;
 class GlfwAppBackend : public AppBackend
 {
 public:
-	virtual void Init(const char* title, int width, int height) override;
-	virtual void Loop(std::function<void()>& frameFunc) override;
-	virtual void Shutdown() override;
+	GlfwAppBackend(AppFunctions appFunctions)
+		: AppBackend(appFunctions)
+	{
+	}
 
-private:
-	GLFWwindow* m_window;
+	virtual bool Run(int width, int height, const char* title) override;
 };

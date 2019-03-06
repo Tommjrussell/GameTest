@@ -2,7 +2,7 @@
 #include "glad/glad.h"
 #include "glfw/glfw3.h"
 
-void GlfwAppBackend::Init(const char* title, int width, int height)
+bool GlfwAppBackend::Run(int width, int height, const char* title)
 {
 	glfwInit();
 	glfwWindowHint(GLFW_SAMPLES, 4);
@@ -10,27 +10,25 @@ void GlfwAppBackend::Init(const char* title, int width, int height)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	m_window = glfwCreateWindow(width, height, title, 0, 0);
-	glfwMakeContextCurrent(m_window);
+	auto window = glfwCreateWindow(width, height, title, 0, 0);
+	glfwMakeContextCurrent(window);
 
-	gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+	gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 
 	glfwSwapInterval(1);
-}
 
-void GlfwAppBackend::Loop(std::function<void()>& frameFunc)
-{
-	while (!glfwWindowShouldClose(m_window))
+	CallInitFunction();
+
+	while (!glfwWindowShouldClose(window))
 	{
-		frameFunc();
+		CallFrameFunction();
 
-		glfwSwapBuffers(m_window);
+		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-}
 
-void GlfwAppBackend::Shutdown()
-{
-	glfwDestroyWindow(m_window);
+	CallShutdownFunction();
+
+	glfwDestroyWindow(window);
 	glfwTerminate();
 }

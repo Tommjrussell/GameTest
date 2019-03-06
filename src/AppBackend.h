@@ -2,13 +2,30 @@
 
 #include <functional>
 
+struct AppFunctions
+{
+	std::function<bool()> initFunction;
+	std::function<bool()> frameFunction;
+	std::function<bool()> shutdownFunction;
+};
+
 class AppBackend
 {
-
 public:
+	AppBackend(AppFunctions appFunctions)
+		: m_appFunctions(appFunctions)
+	{
+	}
+
 	virtual ~AppBackend() {}
 
-	virtual void Init(const char* title, int width, int height) = 0;
-	virtual void Loop(std::function<void()>& frameFunc) = 0;
-	virtual void Shutdown() = 0;
+	virtual bool Run(int width, int height, const char* title) = 0;
+
+protected:
+	void CallInitFunction();
+	void CallFrameFunction();
+	void CallShutdownFunction();
+
+private:
+	AppFunctions m_appFunctions;
 };

@@ -4,12 +4,24 @@
 
 #include <string>
 
+struct sapp_event;
+
 class SappAppBackend : public AppBackend
 {
 public:
-	virtual void Init(const char* title, int width, int height) override;
-	virtual void Loop(std::function<void()>& frameFunc) override;
-	virtual void Shutdown() override;
+	SappAppBackend(AppFunctions appFunctions)
+		: AppBackend(appFunctions)
+	{
+	}
+
+	virtual bool Run(int width, int height, const char* title) override;
+
+private:
+	static void sappCallbacks::InitCallback(void* userdata);
+	static void sappCallbacks::FrameCallback(void* userdata);
+	static void sappCallbacks::CleanupCallback(void* userdata);
+	static void sappCallbacks::EventCallback(const sapp_event*, void*);
+	static void sappCallbacks::FailCallback(const char*, void*);
 
 private:
 	int m_width;
