@@ -1,10 +1,27 @@
+#pragma once
+
+#include "Appbackend.h"
 #include <memory>
 
-#include "AppbackEnd.h
+struct sg_desc;
 
-class App
+namespace tx0
 {
-public:
-private:
-	std::unique_ptr<AppBackend> m_backend;
+	class App
+	{
+		bool Run();
+
+	private:
+		virtual void Init(sg_desc args) = 0;
+		virtual void Cleanup() = 0;
+		virtual void Frame() = 0;
+
+	protected:
+		int GetWindowWidth();
+		int GetWindowHeight();
+
+	private:
+		std::unique_ptr<AppBackend> m_backend;
+	};
+
 }
