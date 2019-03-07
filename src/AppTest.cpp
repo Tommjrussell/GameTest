@@ -116,7 +116,7 @@ int main()
 {
 	MyApp myApp;
 
-	myApp.Run();
+	myApp.Run(640, 480, "My Window");
 
 	return 0;
 }

@@ -17,7 +17,7 @@ configure_file (
   "${PROJECT_BINARY_DIR}/Config.h"
   )
 
-include_directories("${PROJECT_BINARY_DIR}" "${GLFW_SOURCE_DIR}/deps")
+include_directories("${PROJECT_BINARY_DIR}")
 
 # Add source to this project's executable.
 add_executable (GameTest "GameTest.cpp" "GameTest.h")
@@ -26,8 +26,14 @@ target_link_libraries(GameTest PUBLIC glfw glad OpenGL::GL)
 add_executable(SokolTest "src/sokol.cpp" "src/sokolTest.cpp")
 target_link_libraries(SokolTest PUBLIC sokol OpenGL::GL)
 
-add_executable(AppTest "src/AppTest.cpp" "src/App.h" "src/AppBackend.h" "src/glfwAppBackend.h" "src/glfwAppBackend.cpp")
-target_link_libraries(AppTest PUBLIC glfw glad sokol OpenGL::GL)
+add_executable(AppTest
+	"src/AppTest.cpp"
+	"src/App.h"				"src/App.cpp"
+	"src/AppBackend.h"		"src/AppBackend.cpp"
+	"src/glfwAppBackend.h"	"src/glfwAppBackend.cpp"
+	"src/sappAppBackend.h"	"src/sappAppBackend.cpp"
+	"src/SokolInit.cpp")
+target_link_libraries(AppTest PUBLIC glad glfw sokol OpenGL::GL)
 
 
 # TODO: Add tests and install targets if needed.

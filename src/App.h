@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Appbackend.h"
+#include "AppBackend.h"
 #include <memory>
+
 
 struct sg_desc;
 
@@ -9,7 +10,9 @@ namespace tx0
 {
 	class App
 	{
-		bool Run();
+	public:
+		~App();
+		bool Run(int width, int height, const char* title);
 
 	private:
 		virtual void Init(sg_desc args) = 0;

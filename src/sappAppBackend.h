@@ -16,12 +16,14 @@ public:
 
 	virtual bool Run(int width, int height, const char* title) override;
 
+	virtual sg_desc GetSokolDesc() const override;
+
 private:
-	static void sappCallbacks::InitCallback(void* userdata);
-	static void sappCallbacks::FrameCallback(void* userdata);
-	static void sappCallbacks::CleanupCallback(void* userdata);
-	static void sappCallbacks::EventCallback(const sapp_event*, void*);
-	static void sappCallbacks::FailCallback(const char*, void*);
+	static void InitCallback(void* userdata);
+	static void FrameCallback(void* userdata);
+	static void CleanupCallback(void* userdata);
+	static void EventCallback(const sapp_event*, void* userdata);
+	static void FailCallback(const char*, void* userdata);
 
 private:
 	int m_width;

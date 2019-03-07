@@ -1,5 +1,3 @@
-#include "glad/glad.h"
-
 #define SOKOL_NO_DEPRECATED
 #include "sokol_gfx.h"
 #include "sokol_app.h"

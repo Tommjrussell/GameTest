@@ -1,6 +1,11 @@
 #include "glfwAppBackend.h"
 #include "glad/glad.h"
 #include "glfw/glfw3.h"
+#include "sokol_gfx.h"
+
+//#define USE_GLFW
+
+#ifdef USE_GLFW
 
 bool GlfwAppBackend::Run(int width, int height, const char* title)
 {
@@ -21,6 +26,8 @@ bool GlfwAppBackend::Run(int width, int height, const char* title)
 
 	while (!glfwWindowShouldClose(window))
 	{
+		glfwGetWindowSize(window, &m_windowWidth, &m_windowHeight);
+
 		CallFrameFunction();
 
 		glfwSwapBuffers(window);
@@ -31,4 +38,14 @@ bool GlfwAppBackend::Run(int width, int height, const char* title)
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
+
+	return true;
 }
+
+sg_desc GlfwAppBackend::GetSokolDesc() const
+{
+	sg_desc desc = { 0 };
+	return desc;
+}
+
+#endif
