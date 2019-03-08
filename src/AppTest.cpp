@@ -30,23 +30,18 @@ void MyApp::Init(sg_desc args)
 		-0.5f, -0.5f, 0.5f,     1.0f, 1.0f, 0.0f, 1.0f,
 	};
 
-	{
-		sg_buffer_desc args = { 0 };
-		args.size = sizeof(vertices);
-		args.content = vertices;
-		m_bind.vertex_buffers[0] = sg_make_buffer(&args);
-	}
+	m_bind.vertex_buffers[0] = tx0::NewBuffer()
+		.Size(sizeof vertices)
+		.Content(vertices)
+		.Make();
 
 	const uint16_t indices[] = { 0, 1, 2,  0, 2, 3 };
 
-	{
-		sg_buffer_desc args = { 0 };
-		args.type = SG_BUFFERTYPE_INDEXBUFFER;
-		args.size = sizeof(indices);
-		args.content = indices;
-		m_bind.index_buffer = sg_make_buffer(&args);
-	}
-
+	m_bind.index_buffer = tx0::NewBuffer()
+		.Type(SG_BUFFERTYPE_INDEXBUFFER)
+		.Size(sizeof(indices))
+		.Content(indices)
+		.Make();
 	{
 		sg_shader_desc args = { 0 };
 		args.vs.source =
