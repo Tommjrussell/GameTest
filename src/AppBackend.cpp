@@ -16,6 +16,14 @@ void AppBackend::CallFrameFunction()
 	}
 }
 
+void AppBackend::CallEventFunction(const sapp_event* event)
+{
+	if (bool(m_appFunctions.eventFunction))
+	{
+		m_appFunctions.eventFunction(event);
+	}
+}
+
 void AppBackend::CallShutdownFunction()
 {
 	if (bool(m_appFunctions.shutdownFunction))

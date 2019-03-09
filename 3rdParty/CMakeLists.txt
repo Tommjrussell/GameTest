@@ -1,6 +1,5 @@
 add_subdirectory(glad)
 
-# glfw
 set(GLFW_BUILD_EXAMPLES  OFF CACHE INTERNAL "")
 set(GLFW_BUILD_TESTS     OFF CACHE INTERNAL "")
 set(GLFW_BUILD_DOCS      OFF CACHE INTERNAL "")
@@ -16,6 +15,7 @@ target_include_directories(sokol INTERFACE ${CMAKE_CURRENT_LIST_DIR}/sokol)
 add_library(imgui STATIC
 	${CMAKE_CURRENT_LIST_DIR}/imgui/imgui.cpp
 	${CMAKE_CURRENT_LIST_DIR}/imgui/imgui_demo.cpp
-	${CMAKE_CURRENT_LIST_DIR}/imgui/imgui_draw.cpp)
+	${CMAKE_CURRENT_LIST_DIR}/imgui/imgui_draw.cpp
+	${CMAKE_CURRENT_LIST_DIR}/imgui/imgui_widgets.cpp)
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_LIST_DIR}/imgui)
 set_target_properties(imgui PROPERTIES FOLDER "imgui")

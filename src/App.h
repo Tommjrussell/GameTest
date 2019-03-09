@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "sokol_gfx.h"
+#include "config.h"
 
 namespace tx0
 {
@@ -17,6 +18,7 @@ namespace tx0
 		virtual void Init(sg_desc args) = 0;
 		virtual void Cleanup() = 0;
 		virtual void Frame() = 0;
+		virtual void Event(const sapp_event* event) = 0;
 
 	protected:
 		int GetWindowWidth();

@@ -21,6 +21,7 @@ bool tx0::App::Run(int width, int height, const char* title)
 	AppFunctions funcs;
 	funcs.initFunction = [this](){ Init(m_backend->GetSokolDesc()); return true; };
 	funcs.frameFunction = [this](){ Frame(); return true; };
+	funcs.eventFunction = [this](const sapp_event* event){ Event(event); return true; };
 	funcs.shutdownFunction = [this](){ Cleanup(); return true; };
 
 #ifdef USE_GLFW

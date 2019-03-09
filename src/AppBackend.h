@@ -2,12 +2,15 @@
 
 #include <functional>
 
+#include "sokol_app.h" // for the event struct
+
 struct sg_desc;
 
 struct AppFunctions
 {
 	std::function<bool()> initFunction;
 	std::function<bool()> frameFunction;
+	std::function<bool(const sapp_event*)> eventFunction;
 	std::function<bool()> shutdownFunction;
 };
 
@@ -31,6 +34,7 @@ public:
 protected:
 	void CallInitFunction();
 	void CallFrameFunction();
+	void CallEventFunction(const sapp_event* event);
 	void CallShutdownFunction();
 
 private:
