@@ -1,7 +1,6 @@
 #pragma once
 
 #include "AppBackend.h"
-
 #include <string>
 
 struct sapp_event;

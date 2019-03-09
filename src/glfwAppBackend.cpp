@@ -1,11 +1,11 @@
+#include "Config.h"
+#ifdef USE_GLFW
+
 #include "glfwAppBackend.h"
+
 #include "glad/glad.h"
 #include "glfw/glfw3.h"
 #include "sokol_gfx.h"
-
-//#define USE_GLFW
-
-#ifdef USE_GLFW
 
 bool GlfwAppBackend::Run(int width, int height, const char* title)
 {

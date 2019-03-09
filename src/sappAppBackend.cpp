@@ -1,7 +1,7 @@
-#include "sappAppBackend.h"
-
-#define  USE_SAPP
+#include "config.h"
 #ifdef USE_SAPP
+
+#include "sappAppBackend.h"
 
 #include "sokol_app.h"
 #include "sokol_gfx.h"

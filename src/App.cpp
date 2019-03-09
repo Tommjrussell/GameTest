@@ -3,9 +3,7 @@
 
 #include "sokol_gfx.h"
 
-//#define USE_GLFW
-#define USE_SAPP
-
+#include "config.h"
 #ifdef USE_GLFW
 #	include "glfwAppBackend.h"
 #elif defined(USE_SAPP)

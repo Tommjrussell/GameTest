@@ -1,9 +1,15 @@
-//#define USE_GLFW
-#define USE_SAPP
+#include "config.h"
 
 #define SOKOL_IMPL
 #define SOKOL_NO_DEPRECATED
-#define SOKOL_GLCORE33
+
+#if (defined USE_OPENGL)
+#	define SOKOL_GLCORE33
+#elif (defined USE_DIRECTX)
+#	define SOKOL_D3D11
+#elif (defined USE_METAL)
+#	define SOKOL_METAL
+#endif
 
 #ifdef USE_GLFW
 #	include "glad/glad.h"
