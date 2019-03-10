@@ -52,5 +52,5 @@ add_executable(AppTest
 	"src/sappAppBackend.h"	"src/sappAppBackend.cpp"
 	"src/AppImgui.h"		"src/AppImgui.cpp"
 	"src/SokolInit.cpp")
-target_link_libraries(AppTest PUBLIC sokol imgui ${GameTest_LIBRARIES})
+target_link_libraries(AppTest PUBLIC sokol imgui glm ${GameTest_LIBRARIES})
 
