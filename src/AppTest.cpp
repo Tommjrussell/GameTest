@@ -6,6 +6,8 @@
 
 #include "imgui.h"
 
+#include "stb_image.h"
+
 #include "glm/glm.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/transform.hpp"
@@ -27,7 +29,7 @@ struct ScreenQuadVertex
 struct SpriteVertex
 {
 	glm::vec3 pos;
-	glm::vec2 texcoord0;
+	glm::i16vec2 texcoord0;
 };
 
 class MyApp : public tx0::App
@@ -42,6 +44,8 @@ private:
 	void DrawImgui(ImDrawData* draw_data);
 
 private:
+	sg_image LoadTexture(const char* filename);
+
 	void DrawSprite(int x, int y);
 
 private:
@@ -77,6 +81,26 @@ private:
 	};
 	std::vector<Sprite> m_sprites;
 };
+
+sg_image MyApp::LoadTexture(const char* filename)
+{
+	sg_image texture = {SG_INVALID_ID};
+	int width, height, numChannels;
+	unsigned char *data = stbi_load(filename, &width, &height, &numChannels, 4);
+	if (data == nullptr)
+		return texture;
+
+	sg_image_desc desc = {};
+	desc.width = width;
+	desc.height = height;
+	desc.content.subimage[0][0].ptr = data;
+	desc.content.subimage[0][0].size = width * height * 4;
+	desc.label = "loaded texture";
+	texture = sg_make_image(&desc);
+	stbi_image_free(data);
+
+	return texture;
+}
 
 void MyApp::InitImgui()
 {
@@ -254,24 +278,7 @@ void MyApp::Init(sg_desc args)
 
 	InitImgui();
 
-    // create a checkerboard texture
-	uint32_t pixels[4*4] = {
-		0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000,
-		0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF,
-		0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF, 0xFF000000,
-		0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF,
-	};
-
-	sg_image texture;
-	{
-		sg_image_desc desc = {};
-		desc.width = 4;
-		desc.height = 4;
-		desc.content.subimage[0][0].ptr = pixels;
-		desc.content.subimage[0][0].size = sizeof pixels;
-		desc.label = "sample texture";
-		texture = sg_make_image(&desc);
-	}
+	sg_image texture = LoadTexture("data\\SpriteSheet.png");
 
 	// a render pass with one color- and one depth-attachment image
 	sg_image color_img;
@@ -352,9 +359,13 @@ void MyApp::Init(sg_desc args)
 		desc.layout.attrs[0].format = SG_VERTEXFORMAT_FLOAT3;
 		desc.layout.attrs[1].name = "texcoord0";
 		desc.layout.attrs[1].sem_name = "TEXCOORD";
-		desc.layout.attrs[1].format = SG_VERTEXFORMAT_FLOAT2 ;
+		desc.layout.attrs[1].format = SG_VERTEXFORMAT_SHORT2N;
 		desc.shader = offscreen_shd;
 		desc.index_type = SG_INDEXTYPE_UINT16;
+		desc.blend.enabled = true;
+		desc.blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
+		desc.blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
+		desc.blend.color_write_mask = SG_COLORMASK_RGB;
 		desc.blend.color_format = SG_PIXELFORMAT_RGBA8;
 		desc.blend.depth_format = SG_PIXELFORMAT_NONE;
 		desc.rasterizer.sample_count = 4;
@@ -498,33 +509,33 @@ void MyApp::Frame()
 
     ImGui::NewFrame();
 
-	//// 1. Show a simple window
-	//// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-	//static float f = 0.0f;
-	//ImGui::Text("Hello, world!");
-	//ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-	//ImGui::ColorEdit3("clear color", &m_passAction.colors[0].val[0]);
-	//if (ImGui::Button("Test Window")) show_test_window ^= 1;
-	//if (ImGui::Button("Another Window")) show_another_window ^= 1;
-	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-	//ImGui::Text("btn_down: %d %d %d\n", m_buttonDown[0], m_buttonDown[1], m_buttonDown[2]);
-	//ImGui::Text("btn_up: %d %d %d\n", m_buttonUp[0], m_buttonUp[1], m_buttonUp[2]);
+	// 1. Show a simple window
+	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+	static float f = 0.0f;
+	ImGui::Text("Hello, world!");
+	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+	ImGui::ColorEdit3("clear color", &m_passAction.colors[0].val[0]);
+	if (ImGui::Button("Test Window")) show_test_window ^= 1;
+	if (ImGui::Button("Another Window")) show_another_window ^= 1;
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+	ImGui::Text("btn_down: %d %d %d\n", m_buttonDown[0], m_buttonDown[1], m_buttonDown[2]);
+	ImGui::Text("btn_up: %d %d %d\n", m_buttonUp[0], m_buttonUp[1], m_buttonUp[2]);
 
-	//// 2. Show another simple window, this time using an explicit Begin/End pair
-	//if (show_another_window)
-	//{
-	//	ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
-	//	ImGui::Begin("Another Window", &show_another_window);
-	//	ImGui::Text("Hello");
-	//	ImGui::End();
-	//}
+	// 2. Show another simple window, this time using an explicit Begin/End pair
+	if (show_another_window)
+	{
+		ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
+		ImGui::Begin("Another Window", &show_another_window);
+		ImGui::Text("Hello");
+		ImGui::End();
+	}
 
-	//// 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-	//if (show_test_window)
-	//{
-	//	ImGui::SetNextWindowPos(ImVec2(460, 20), ImGuiSetCond_FirstUseEver);
-	//	ImGui::ShowTestWindow();
-	//}
+	// 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+	if (show_test_window)
+	{
+		ImGui::SetNextWindowPos(ImVec2(460, 20), ImGuiSetCond_FirstUseEver);
+		ImGui::ShowTestWindow();
+	}
 
 	// Create the sprites
 	m_sprites.clear();
@@ -548,16 +559,16 @@ void MyApp::Frame()
 			const auto in = i*6;
 
 			m_spriteVertexList[vn+0].pos = glm::vec3(s.x - 8.0f, s.y - 8.0f, 0.0f);
-			m_spriteVertexList[vn+0].texcoord0 = { 0.0f, 1.0f };
+			m_spriteVertexList[vn+0].texcoord0 = { 0, 0 };
 
 			m_spriteVertexList[vn+1].pos = glm::vec3(s.x + 8.0f, s.y - 8.0f, 0.0f);
-			m_spriteVertexList[vn+1].texcoord0 = { 1.0f, 1.0f };
+			m_spriteVertexList[vn+1].texcoord0 = { 0x800, 0 };
 
 			m_spriteVertexList[vn+2].pos = glm::vec3(s.x - 8.0f, s.y + 8.0f, 0.0f);
-			m_spriteVertexList[vn+2].texcoord0 = { 0.0f, 0.0f };
+			m_spriteVertexList[vn+2].texcoord0 = { 0, 0x800 };
 
 			m_spriteVertexList[vn+3].pos = glm::vec3(s.x + 8.0f, s.y + 8.0f, 0.0f);
-			m_spriteVertexList[vn+3].texcoord0 = { 1.0f, 0.0f };
+			m_spriteVertexList[vn+3].texcoord0 = { 0x800, 0x800 };
 
 			m_spriteIndexList[in+0] = uint16_t(vn+0);
 			m_spriteIndexList[in+1] = uint16_t(vn+1);

@@ -31,9 +31,8 @@ elseif (USE_METAL)
 endif()
 
 configure_file (
-  "${PROJECT_SOURCE_DIR}/Config.h.in"
-  "${PROJECT_BINARY_DIR}/Config.h"
-  )
+	"${PROJECT_SOURCE_DIR}/Config.h.in"
+	"${PROJECT_BINARY_DIR}/Config.h")
 
 include_directories("${PROJECT_BINARY_DIR}")
 
@@ -52,5 +51,13 @@ add_executable(AppTest
 	"src/sappAppBackend.h"	"src/sappAppBackend.cpp"
 	"src/AppImgui.h"		"src/AppImgui.cpp"
 	"src/SokolInit.cpp")
-target_link_libraries(AppTest PUBLIC sokol imgui glm ${GameTest_LIBRARIES})
+target_link_libraries(AppTest PUBLIC sokol imgui glm stb ${GameTest_LIBRARIES})
 
+add_custom_command(TARGET AppTest POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/data)
+
+add_custom_command(
+		TARGET AppTest POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy
+				${CMAKE_SOURCE_DIR}/data/SpriteSheet.png
+				${CMAKE_CURRENT_BINARY_DIR}/data/SpriteSheet.png)
