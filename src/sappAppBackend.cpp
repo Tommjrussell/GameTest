@@ -62,9 +62,10 @@ void SappAppBackend::CleanupCallback(void* userdata)
 	thisPtr->CallShutdownFunction();
 }
 
-void SappAppBackend::EventCallback(const sapp_event*, void* userdata)
+void SappAppBackend::EventCallback(const sapp_event* event, void* userdata)
 {
 	const auto thisPtr = reinterpret_cast<SappAppBackend*>(userdata);
+	thisPtr->CallEventFunction(event);
 }
 
 void SappAppBackend::FailCallback(const char*, void* userdata)

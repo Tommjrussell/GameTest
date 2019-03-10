@@ -21,7 +21,7 @@ private:
 	static void InitCallback(void* userdata);
 	static void FrameCallback(void* userdata);
 	static void CleanupCallback(void* userdata);
-	static void EventCallback(const sapp_event*, void* userdata);
+	static void EventCallback(const sapp_event* event, void* userdata);
 	static void FailCallback(const char*, void* userdata);
 
 private:
