@@ -19,3 +19,6 @@ add_library(imgui STATIC
 	${CMAKE_CURRENT_LIST_DIR}/imgui/imgui_widgets.cpp)
 target_include_directories(imgui PUBLIC ${CMAKE_CURRENT_LIST_DIR}/imgui)
 set_target_properties(imgui PROPERTIES FOLDER "imgui")
+
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE ${CMAKE_CURRENT_LIST_DIR}/stb)
