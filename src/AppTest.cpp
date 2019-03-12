@@ -5,6 +5,7 @@
 #include "sokol_time.h"
 
 #include "imgui.h"
+#include "util/sokol_imgui.h"
 
 #include "stb_image.h"
 
@@ -39,9 +40,6 @@ private:
 	virtual void Cleanup() override;
 	virtual void Frame() override;
 	virtual void Event(const sapp_event* event) override;
-
-	void InitImgui();
-	void DrawImgui(ImDrawData* draw_data);
 
 private:
 	sg_image LoadTexture(const char* filename);
@@ -102,185 +100,23 @@ sg_image MyApp::LoadTexture(const char* filename)
 	return texture;
 }
 
-void MyApp::InitImgui()
-{
-	// setup Dear Imgui
-	ImGui::CreateContext();
-	ImGui::StyleColorsDark();
-	ImGuiIO& io = ImGui::GetIO();
-	ImFontConfig fontCfg;
-	fontCfg.FontDataOwnedByAtlas = false;
-	fontCfg.OversampleH = 2;
-	fontCfg.OversampleV = 2;
-	fontCfg.RasterizerMultiply = 1.5f;
-	io.Fonts->AddFontDefault();
-	io.IniFilename = nullptr;
-	io.KeyMap[ImGuiKey_Tab] = SAPP_KEYCODE_TAB;
-	io.KeyMap[ImGuiKey_LeftArrow] = SAPP_KEYCODE_LEFT;
-	io.KeyMap[ImGuiKey_RightArrow] = SAPP_KEYCODE_RIGHT;
-	io.KeyMap[ImGuiKey_UpArrow] = SAPP_KEYCODE_UP;
-	io.KeyMap[ImGuiKey_DownArrow] = SAPP_KEYCODE_DOWN;
-	io.KeyMap[ImGuiKey_PageUp] = SAPP_KEYCODE_PAGE_UP;
-	io.KeyMap[ImGuiKey_PageDown] = SAPP_KEYCODE_PAGE_DOWN;
-	io.KeyMap[ImGuiKey_Home] = SAPP_KEYCODE_HOME;
-	io.KeyMap[ImGuiKey_End] = SAPP_KEYCODE_END;
-	io.KeyMap[ImGuiKey_Delete] = SAPP_KEYCODE_DELETE;
-	io.KeyMap[ImGuiKey_Backspace] = SAPP_KEYCODE_BACKSPACE;
-	io.KeyMap[ImGuiKey_Space] = SAPP_KEYCODE_SPACE;
-	io.KeyMap[ImGuiKey_Enter] = SAPP_KEYCODE_ENTER;
-	io.KeyMap[ImGuiKey_Escape] = SAPP_KEYCODE_ESCAPE;
-	io.KeyMap[ImGuiKey_A] = SAPP_KEYCODE_A;
-	io.KeyMap[ImGuiKey_C] = SAPP_KEYCODE_C;
-	io.KeyMap[ImGuiKey_V] = SAPP_KEYCODE_V;
-	io.KeyMap[ImGuiKey_X] = SAPP_KEYCODE_X;
-	io.KeyMap[ImGuiKey_Y] = SAPP_KEYCODE_Y;
-	io.KeyMap[ImGuiKey_Z] = SAPP_KEYCODE_Z;
-
-	m_imgui_bind.vertex_buffers[0] = tx0::NewBuffer()
-		.Usage(SG_USAGE_STREAM)
-		.Size(kMaxImguiVertices * sizeof(ImDrawVert))
-		.Make();
-
-	m_imgui_bind.index_buffer = tx0::NewBuffer()
-		.Type(SG_BUFFERTYPE_INDEXBUFFER)
-		.Usage(SG_USAGE_STREAM)
-		.Size(kMaxImguiIndices * sizeof(ImDrawIdx))
-		.Make();
-
-	// font texture for imgui's default font
-	unsigned char* font_pixels;
-	int font_width, font_height;
-	io.Fonts->GetTexDataAsRGBA32(&font_pixels, &font_width, &font_height);
-	sg_image_desc img_desc = { };
-	img_desc.width = font_width;
-	img_desc.height = font_height;
-	img_desc.pixel_format = SG_PIXELFORMAT_RGBA8;
-	img_desc.wrap_u = SG_WRAP_CLAMP_TO_EDGE;
-	img_desc.wrap_v = SG_WRAP_CLAMP_TO_EDGE;
-	img_desc.min_filter = SG_FILTER_LINEAR;
-	img_desc.mag_filter = SG_FILTER_LINEAR;
-	img_desc.content.subimage[0][0].ptr = font_pixels;
-	img_desc.content.subimage[0][0].size = font_width * font_height * 4;
-	m_imgui_bind.fs_images[0] = sg_make_image(&img_desc);
-
-	// shader object for imgui rendering
-	sg_shader_desc shd_desc = { };
-	auto& ub = shd_desc.vs.uniform_blocks[0];
-	ub.size = sizeof(vs_params_t);
-	ub.uniforms[0].name = "disp_size";
-	ub.uniforms[0].type = SG_UNIFORMTYPE_FLOAT2;
-	shd_desc.fs.images[0].name = "tex";
-	shd_desc.fs.images[0].type = SG_IMAGETYPE_2D;
-	shd_desc.vs.source =  "#version 330\n"
-    "uniform vec2 disp_size;\n"
-    "in vec2 position;\n"
-    "in vec2 texcoord0;\n"
-    "in vec4 color0;\n"
-    "out vec2 uv;\n"
-    "out vec4 color;\n"
-    "void main() {\n"
-    "    gl_Position = vec4(((position/disp_size)-0.5)*vec2(2.0,-2.0), 0.5, 1.0);\n"
-    "    uv = texcoord0;\n"
-    "    color = color0;\n"
-"}\n";
-	shd_desc.fs.source =  "#version 330\n"
-    "uniform sampler2D tex;\n"
-    "in vec2 uv;\n"
-    "in vec4 color;\n"
-    "out vec4 frag_color;\n"
-    "void main() {\n"
-    "    frag_color = texture(tex, uv) * color;\n"
-"}\n";
-	sg_shader shd = sg_make_shader(&shd_desc);
-
-
-	// pipeline object for imgui rendering
-	sg_pipeline_desc pip_desc = { };
-	pip_desc.layout.buffers[0].stride = sizeof(ImDrawVert);
-	auto& attrs = pip_desc.layout.attrs;
-	attrs[0].name="position"; attrs[0].sem_name="POSITION"; attrs[0].offset=offsetof(ImDrawVert, pos); attrs[0].format=SG_VERTEXFORMAT_FLOAT2;
-	attrs[1].name="texcoord0"; attrs[1].sem_name="TEXCOORD"; attrs[1].offset=offsetof(ImDrawVert, uv); attrs[1].format=SG_VERTEXFORMAT_FLOAT2;
-	attrs[2].name="color0"; attrs[2].sem_name="COLOR"; attrs[2].offset=offsetof(ImDrawVert, col); attrs[2].format=SG_VERTEXFORMAT_UBYTE4N;
-	pip_desc.shader = shd;
-	pip_desc.index_type = SG_INDEXTYPE_UINT16;
-	pip_desc.blend.enabled = true;
-	pip_desc.blend.src_factor_rgb = SG_BLENDFACTOR_SRC_ALPHA;
-	pip_desc.blend.dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA;
-	pip_desc.blend.color_write_mask = SG_COLORMASK_RGB;
-	m_imgui_pip = sg_make_pipeline(&pip_desc);
-}
-
-void MyApp::DrawImgui(ImDrawData* draw_data)
-{
-	if (draw_data->CmdListsCount == 0)
-		return;
-
-	sg_apply_pipeline(m_imgui_pip);
-	vs_params_t vs_params;
-	vs_params.disp_size.x = ImGui::GetIO().DisplaySize.x;
-	vs_params.disp_size.y = ImGui::GetIO().DisplaySize.y;
-	sg_apply_uniforms(SG_SHADERSTAGE_VS, 0, &vs_params, sizeof(vs_params));
-
-	for (int cl_index = 0; cl_index < draw_data->CmdListsCount; cl_index++)
-	{
-		const ImDrawList* cl = draw_data->CmdLists[cl_index];
-
-		// append vertices and indices to buffers, record start offsets in bindings struct
-		const int vtx_size = cl->VtxBuffer.size() * sizeof(ImDrawVert);
-		const int idx_size = cl->IdxBuffer.size() * sizeof(ImDrawIdx);
-		const int vb_offset = sg_append_buffer(m_imgui_bind.vertex_buffers[0], &cl->VtxBuffer.front(), vtx_size);
-		const int ib_offset = sg_append_buffer(m_imgui_bind.index_buffer, &cl->IdxBuffer.front(), idx_size);
-
-		// don't render anything if the buffer is in overflow state (this is also
-		// checked internally in sokol_gfx, draw calls that attempt from
-		// overflowed buffers will be silently dropped)
-		if (sg_query_buffer_overflow(m_imgui_bind.vertex_buffers[0]) ||
-			sg_query_buffer_overflow(m_imgui_bind.index_buffer))
-		{
-			continue;
-		}
-
-		m_imgui_bind.vertex_buffer_offsets[0] = vb_offset;
-		m_imgui_bind.index_buffer_offset = ib_offset;
-		sg_apply_bindings(&m_imgui_bind);
-
-		int base_element = 0;
-		for (const ImDrawCmd& pcmd : cl->CmdBuffer)
-		{
-			if (pcmd.UserCallback)
-			{
-				pcmd.UserCallback(cl, &pcmd);
-			}
-			else
-			{
-				const int scissor_x = (int) (pcmd.ClipRect.x);
-				const int scissor_y = (int) (pcmd.ClipRect.y);
-				const int scissor_w = (int) (pcmd.ClipRect.z - pcmd.ClipRect.x);
-				const int scissor_h = (int) (pcmd.ClipRect.w - pcmd.ClipRect.y);
-				sg_apply_scissor_rect(scissor_x, scissor_y, scissor_w, scissor_h, true);
-				sg_draw(base_element, pcmd.ElemCount, 1);
-			}
-			base_element += pcmd.ElemCount;
-		}
-	}
-}
-
 void MyApp::Init(sg_desc args)
 {
 	sg_setup(&args);
 	stm_setup();
 
 	m_passAction.colors[0].action = SG_ACTION_CLEAR;
-	m_offscreenPassAction.colors[0].val[0] = 1.0f;
-	m_offscreenPassAction.colors[0].val[1] = 1.0f;
-	m_offscreenPassAction.colors[0].val[2] = 1.0f;
-	m_offscreenPassAction.colors[0].val[3] = 1.0f;
+	m_passAction.colors[0].val[0] = 1.0f;
+	m_passAction.colors[0].val[1] = 1.0f;
+	m_passAction.colors[0].val[2] = 1.0f;
+	m_passAction.colors[0].val[3] = 1.0f;
 
-	InitImgui();
+	simgui_desc_t desc{};
+	simgui_setup(&desc);
 
 	sg_image texture = LoadTexture("data\\SpriteSheet.png");
 
-	// a render pass with one color- and one depth-attachment image
+	// a render pass with one color image
 	sg_image color_img;
 	{
 		{
@@ -466,6 +302,7 @@ void MyApp::Init(sg_desc args)
 
 void MyApp::Cleanup()
 {
+	simgui_shutdown();
 	sg_shutdown();
 }
 
@@ -479,9 +316,9 @@ void MyApp::Frame()
 	const auto width = GetWindowWidth();
 	const auto height = GetWindowHeight();
 
+	simgui_new_frame(width, height, stm_sec(stm_laptime(&m_lastTime)));
+
 	ImGuiIO& io = ImGui::GetIO();
-	io.DisplaySize = ImVec2(float(width), float(height));
-	io.DeltaTime = (float) stm_sec(stm_laptime(&m_lastTime));
 	for (int i = 0; i < SAPP_MAX_MOUSEBUTTONS; i++)
 	{
 		if (m_buttonDown[i])
@@ -506,8 +343,6 @@ void MyApp::Frame()
 
 	static bool show_test_window = true;
 	static bool show_another_window = true;
-
-    ImGui::NewFrame();
 
 	// 1. Show a simple window
 	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
@@ -588,8 +423,8 @@ void MyApp::Frame()
 	// the offscreen pass, rending some sprites
 
 	sg_begin_pass(m_offscreenPass, &m_offscreenPassAction);
-	m_offscreenBind.vertex_buffer_offsets[0] = sg_append_buffer(m_offscreenBind.vertex_buffers[0], m_spriteVertexList.data(), m_spriteVertexList.size() * sizeof(SpriteVertex));
-	m_offscreenBind.index_buffer_offset = sg_append_buffer(m_offscreenBind.index_buffer, m_spriteIndexList.data(), m_spriteIndexList.size() * sizeof(uint16_t));
+	m_offscreenBind.vertex_buffer_offsets[0] = sg_append_buffer(m_offscreenBind.vertex_buffers[0], m_spriteVertexList.data(), int(m_spriteVertexList.size() * sizeof(SpriteVertex)));
+	m_offscreenBind.index_buffer_offset = sg_append_buffer(m_offscreenBind.index_buffer, m_spriteIndexList.data(), int(m_spriteIndexList.size() * sizeof(uint16_t)));
 	sg_apply_pipeline(m_offscreenPip);
 	sg_apply_bindings(&m_offscreenBind);
 	sg_apply_uniforms(SG_SHADERSTAGE_VS, 0, &ortho, sizeof(ortho));
@@ -601,8 +436,7 @@ void MyApp::Frame()
 	sg_apply_bindings(&m_bind);
 	sg_draw(0, 6, 1);
 
-	ImGui::Render();
-	DrawImgui(ImGui::GetDrawData());
+	simgui_render();
 
 	sg_end_pass();
 	sg_commit();
