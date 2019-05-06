@@ -36,21 +36,4 @@ configure_file (
 
 include_directories("${PROJECT_BINARY_DIR}")
 
-add_executable(AppTest
-	"AppTest/AppTest.cpp"
-	"AppTest/App.h"				"AppTest/App.cpp"
-	"AppTest/AppBackend.h"		"AppTest/AppBackend.cpp"
-	"AppTest/glfwAppBackend.h"	"AppTest/glfwAppBackend.cpp"
-	"AppTest/sappAppBackend.h"	"AppTest/sappAppBackend.cpp"
-	"AppTest/AppImgui.h"		"AppTest/AppImgui.cpp"
-	"AppTest/SokolInit.cpp")
-target_link_libraries(AppTest PUBLIC sokol imgui glm stb ${GameTest_LIBRARIES})
-
-add_custom_command(TARGET AppTest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/data)
-
-add_custom_command(
-		TARGET AppTest POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy
-				${CMAKE_SOURCE_DIR}/data/SpriteSheet.png
-				${CMAKE_CURRENT_BINARY_DIR}/data/SpriteSheet.png)
+add_subdirectory(AppTest)
