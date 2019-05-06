@@ -37,13 +37,13 @@ configure_file (
 include_directories("${PROJECT_BINARY_DIR}")
 
 add_executable(AppTest
-	"src/AppTest.cpp"
-	"src/App.h"				"src/App.cpp"
-	"src/AppBackend.h"		"src/AppBackend.cpp"
-	"src/glfwAppBackend.h"	"src/glfwAppBackend.cpp"
-	"src/sappAppBackend.h"	"src/sappAppBackend.cpp"
-	"src/AppImgui.h"		"src/AppImgui.cpp"
-	"src/SokolInit.cpp")
+	"AppTest/AppTest.cpp"
+	"AppTest/App.h"				"AppTest/App.cpp"
+	"AppTest/AppBackend.h"		"AppTest/AppBackend.cpp"
+	"AppTest/glfwAppBackend.h"	"AppTest/glfwAppBackend.cpp"
+	"AppTest/sappAppBackend.h"	"AppTest/sappAppBackend.cpp"
+	"AppTest/AppImgui.h"		"AppTest/AppImgui.cpp"
+	"AppTest/SokolInit.cpp")
 target_link_libraries(AppTest PUBLIC sokol imgui glm stb ${GameTest_LIBRARIES})
 
 add_custom_command(TARGET AppTest POST_BUILD
