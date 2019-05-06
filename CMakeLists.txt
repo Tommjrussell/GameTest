@@ -19,6 +19,8 @@ Option (USE_OPENGL "Use OpenGL 3.3 as the API" ON)
 Option (USE_DIRECTX "Use DX11 as the API" OFF)
 Option (USE_METAL "Use Metal as the API" OFF)
 
+Option (USE_INTELHD3000 "Enable to support this particular GPU" OFF)
+
 if (USE_GLFW)
 	list(APPEND GameTest_LIBRARIES glfw glad)
 elseif (USE_SAPP)
@@ -36,4 +38,6 @@ configure_file (
 
 include_directories("${PROJECT_BINARY_DIR}")
 
+add_subdirectory(salEngine)
 add_subdirectory(AppTest)
+add_subdirectory(salEngineTest)

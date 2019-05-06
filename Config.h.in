@@ -8,3 +8,5 @@
 #cmakedefine USE_OPENGL
 #cmakedefine USE_DIRECTX
 #cmakedefine USE_METAL
+
+#cmakedefine USE_INTELHD3000
