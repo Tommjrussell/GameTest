@@ -36,13 +36,6 @@ configure_file (
 
 include_directories("${PROJECT_BINARY_DIR}")
 
-# Add source to this project's executable.
-add_executable (GameTest "GameTest.cpp" "GameTest.h")
-target_link_libraries(GameTest PUBLIC glfw glad OpenGL::GL)
-
-add_executable(SokolTest "src/sokol.cpp" "src/sokolTest.cpp")
-target_link_libraries(SokolTest PUBLIC sokol OpenGL::GL)
-
 add_executable(AppTest
 	"src/AppTest.cpp"
 	"src/App.h"				"src/App.cpp"
